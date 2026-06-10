@@ -1,0 +1,31 @@
+import express from "express";
+import dotenv from "dotenv";
+import connectDb from "./db/db.js";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 4000;
+
+connectDb().then(()=>{
+
+    app.listen(PORT, ()=>{
+        console.log(`app started listening on ${PORT}`);
+    })
+
+}).catch((err)=>{
+    console.log("failed to connect db " + err);
+    process.exit(1);
+})
+
+app.use(express.json());
+
+app.get("/", (req, res)=>{
+    return res.json({
+        success : true,
+        msg : "home route"
+    })
+})
+
+
+
