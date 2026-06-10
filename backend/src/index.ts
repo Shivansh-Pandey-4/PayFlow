@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDb from "./db/db.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ connectDb().then(()=>{
     process.exit(1);
 })
 
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", (req, res)=>{
