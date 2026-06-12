@@ -121,3 +121,6 @@ router.post("/logout", (req: Request, res: Response)=>{
     })
 
 })
+
+
+export default router;

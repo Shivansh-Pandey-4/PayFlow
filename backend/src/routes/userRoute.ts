@@ -8,10 +8,11 @@ import UserModel from "../model/UserModel.js";
 const router = Router();
 
 
-router.get("/bulk", authMiddleware, async(req: Request<{}, {}, {}, {page ?: string; limit ?: string}>, res: Response)=>{
+router.get("/bulk", authMiddleware, async(req: Request<{}, {}, {}, {page ?: string; limit ?: string; filter ?: string}>, res: Response)=>{
 
      const page = req.query.page;
      const limit = req.query.limit;
+     const filter = req.query.filter || "";
 
      const parsedPage = Math.max(Number(page) || 1, 1);
      const parsedLimit = Math.min(parseInt(limit || "5"), 5);
@@ -21,7 +22,14 @@ router.get("/bulk", authMiddleware, async(req: Request<{}, {}, {}, {page ?: stri
 
      try {
 
-        const allUsers = await UserModel.find({ _id : {$ne : req.userInfo?.id}}).sort({createdAt : -1}).skip(skip).limit(parsedLimit).select("-password");
+        const allUsers = await UserModel.find(
+            {
+                $and : [
+                    { _id : {$ne : `${req.userInfo?.id}`}},
+                    { $or : [{firstName : {$regex : filter, $options : "i"}}, {lastName : {$regex : filter, $options : "i"}}]}
+                ]
+            }
+        ).sort({createdAt : -1}).skip(skip).limit(parsedLimit).select("-password");
 
         const totalDocument = await UserModel.countDocuments({_id : { $ne : req.userInfo?.id} });
 
@@ -109,6 +117,8 @@ router.patch("/update", authMiddleware, async(req: Request<{}, {}, zod.infer<typ
 
 
 })
+
+
 
 
 export default router;
