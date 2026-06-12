@@ -8,15 +8,31 @@ import UserModel from "../model/UserModel.js";
 const router = Router();
 
 
-router.get("/bulk", authMiddleware, async(req: Request, res: Response)=>{
+router.get("/bulk", authMiddleware, async(req: Request<{}, {}, {}, {page ?: string; limit ?: string}>, res: Response)=>{
+
+     const page = req.query.page;
+     const limit = req.query.limit;
+
+     const parsedPage = Math.max(Number(page) || 1, 1);
+     const parsedLimit = Math.min(parseInt(limit || "5"), 5);
+
+     const skip = (parsedPage - 1)*parsedLimit;
+
+
      try {
 
-        const allUsers = await UserModel.find({ _id : {$ne : req.userInfo?.id}}).select("-password -createdAt");
+        const allUsers = await UserModel.find({ _id : {$ne : req.userInfo?.id}}).sort({createdAt : -1}).skip(skip).limit(parsedLimit).select("-password");
+
+        const totalDocument = await UserModel.countDocuments({_id : { $ne : req.userInfo?.id} });
+
 
         if(allUsers.length ===0){
             return res.json({
                 success : true,
                 msg : "users list is empty",
+                page : parsedPage,
+                totalPage : Math.ceil(totalDocument/parsedLimit),
+                limit : parsedLimit,
                 allUsers
             })
         }
@@ -24,6 +40,9 @@ router.get("/bulk", authMiddleware, async(req: Request, res: Response)=>{
         return res.json({
             success : true,
             msg : "all users found successfully",
+            page : parsedPage,
+            totalPage : Math.ceil(totalDocument/parsedLimit),
+            limit : parsedLimit,
             allUsers
         })
 
