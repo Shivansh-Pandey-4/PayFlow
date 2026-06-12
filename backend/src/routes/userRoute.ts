@@ -8,6 +8,35 @@ import UserModel from "../model/UserModel.js";
 const router = Router();
 
 
+router.get("/bulk", authMiddleware, async(req: Request, res: Response)=>{
+     try {
+
+        const allUsers = await UserModel.find({ _id : {$ne : req.userInfo?.id}}).select("-password -createdAt");
+
+        if(allUsers.length ===0){
+            return res.json({
+                success : true,
+                msg : "users list is empty",
+                allUsers
+            })
+        }
+
+        return res.json({
+            success : true,
+            msg : "all users found successfully",
+            allUsers
+        })
+
+     } catch (error) {
+        return res.status(500).json({
+            success : false,
+            msg : "failed to find users",
+            error : error instanceof Error ? error.message : "unknown error occurred"
+        })        
+     }
+})
+
+
 router.patch("/update", authMiddleware, async(req: Request<{}, {}, zod.infer<typeof updateProfileSchema>>, res: Response)=>{
 
     const result = updateProfileSchema.safeParse(req.body);
