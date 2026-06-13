@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import accountRoute from  "./routes/accountRoute.js";
 
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(express.json());
 
 app.use("/auth", authRoute);
 app.use("/user", userRoute);
+app.use("/account", accountRoute);
 
 app.get("/", (req, res)=>{
     return res.json({
