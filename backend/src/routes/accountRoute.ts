@@ -1,8 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import AccountModel from "../model/AccountModel.js";
-import mongoose from "mongoose";
-import { addAmountSchema } from "../validation/accountSchema.js";
+import mongoose, { startSession } from "mongoose";
+import { addAmountSchema, initialAccountSchema, transferSchema } from "../validation/accountSchema.js";
 import zod from "zod";
 
 
@@ -35,7 +35,10 @@ router.get("/balance", authMiddleware, async(req : Request, res: Response)=>{
 })
 
 
-router.post("/create", authMiddleware, async(req: Request, res: Response)=>{
+router.post("/create", authMiddleware, async(req: Request<{}, {}, zod.infer<typeof initialAccountSchema>>, res: Response)=>{
+
+    const result = initialAccountSchema.safeParse(req.body);
+
      try {
         
         const accountExist = await AccountModel.findOne({userId : `${req.userInfo?.id}`});
@@ -48,7 +51,7 @@ router.post("/create", authMiddleware, async(req: Request, res: Response)=>{
             })
         }
 
-        const newAccount = await AccountModel.create({userId : `${req.userInfo?.id}`});
+        const newAccount = await AccountModel.create({userId : `${req.userInfo?.id}`, amount : result.data?.amount || 0});
 
         return res.json({
             success : true,
@@ -129,5 +132,64 @@ router.patch("/addMoney/:accountId", authMiddleware, async(req: Request<{account
 
 })
 
+
+router.patch("/transfer", authMiddleware, async(req: Request<{}, {}, zod.infer<typeof transferSchema>>, res: Response)=>{
+
+    const result = transferSchema.safeParse(req.body);
+
+    if(!result.success){
+         return res.status(400).json({
+            success : false,
+            msg : "invalid credentials provided",
+            error : `err: ${result.error.issues[0]?.message}, path: ${result.error.issues[0]?.path.toString()} `
+         })
+    }
+
+    const session = await AccountModel.startSession();
+
+    try {
+
+        session.startTransaction();
+        const {amount, toUserId} = result.data;
+
+        const senderAccountExist = await AccountModel.findOne({userId : `${req.userInfo?.id}`}).session(session);
+
+        if(!senderAccountExist){
+            throw new Error("sender account not found");
+        }
+
+        if(senderAccountExist.amount < amount){
+             throw new Error("insufficient balance");
+        }
+
+        const receiverAccountExist = await AccountModel.findOne({userId : toUserId}).session(session);
+
+        if(!receiverAccountExist){
+            throw new Error("receiver account not found");
+        }
+
+        const updateSenderAccount = await AccountModel.updateOne({userId : senderAccountExist._id}, {$inc : { amount : -amount}}, {session});
+
+        const updateReceiverAccount = await AccountModel.updateOne({userId : receiverAccountExist._id}, {$inc : {amount : amount}}, {session: session});
+
+        await session.commitTransaction();
+
+        return res.json({
+            success : true,
+            msg : "money transferred successfully"
+        })
+        
+    } catch (error) {
+        await session.abortTransaction();
+        return res.status(400).json({
+            success : false,
+            msg : "transaction failed",
+            error : error instanceof Error ? error.message : "unknown error occurred"
+        })
+    } finally{
+        await session.endSession();
+    }
+
+})
 
 export default router;
