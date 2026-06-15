@@ -119,6 +119,36 @@ router.patch("/update", authMiddleware, async(req: Request<{}, {}, zod.infer<typ
 })
 
 
+router.get("/me", authMiddleware, async(req: Request, res: Response)=>{
+
+     try {
+        
+        const userExist = await UserModel.findById(req.userInfo?.id).select("-password -updatedAt");
+
+        if(!userExist){
+            return res.status(404).json({
+                success : false,
+                msg : "user not found",
+                user : null
+            })
+        }
+
+        return res.json({
+            success : true,
+            msg : "user found successfully",
+            user : userExist
+        });
+
+     } catch (error) {
+        return res.status(500).json({
+            success : false,
+            msg : "failed to get user",
+            error : error instanceof Error ? error.message : "unknown error occurred"
+        })
+     }
+})
+
+
 
 
 export default router;
