@@ -5,6 +5,8 @@ import Body from "./pages/Body"
 import Transfer from "./pages/Transfer"
 import Signin from "./pages/Signin"
 import Signup from "./pages/Signup"
+import PrivateRoute from "./components/PrivateRoute"
+import PublicRoute from "./components/PublicRoute"
 
 function App() {
 
@@ -31,19 +33,27 @@ const appConfig = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Body />
+        element: (<PrivateRoute>
+          <Body />
+        </PrivateRoute>)
       },
       {
         path: "/transfer/:id",
-        element: <Transfer />
+        element: <PrivateRoute >
+          <Transfer />
+        </PrivateRoute>
       },
       {
         path: "/signup",
-        element: <Signup />
+        element: (<PublicRoute>
+          <Signup />
+        </PublicRoute>)
       },
       {
         path: "/signin",
-        element: <Signin />
+        element: <PublicRoute>
+          <Signin />
+        </PublicRoute>
       }
     ]
   }

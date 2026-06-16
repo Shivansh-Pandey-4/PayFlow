@@ -1,6 +1,6 @@
 export default function Body() {
     return (
-        <div>
+        <div className="px-4">
             Body
         </div>
     )

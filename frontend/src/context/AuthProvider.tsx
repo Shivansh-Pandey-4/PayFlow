@@ -12,6 +12,7 @@ interface IAuthContext {
     user: IUser | null;
     setUser: React.Dispatch<React.SetStateAction<null | IUser>>;
     isLoading: boolean;
+    fetchUser: () => Promise<void>
 }
 
 interface IData {
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     return (
-        <AuthContext value={{ user, setUser, isLoading }}>
+        <AuthContext value={{ user, setUser, isLoading, fetchUser }}>
             {children}
         </AuthContext>
     )

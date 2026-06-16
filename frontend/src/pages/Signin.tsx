@@ -1,7 +1,10 @@
+import SigninForm from "../components/SigninForm";
+
 export default function Signin() {
+
     return (
-        <div>
-            <h1>Signin</h1>
+        <div className="py-12">
+            <SigninForm />
         </div>
     )
 }
