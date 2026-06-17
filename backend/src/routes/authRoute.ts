@@ -16,7 +16,7 @@ router.post("/signup", async(req: Request<{}, {}, zod.infer<typeof signupSchema>
         return res.status(401).json({
             success : false,
             msg : "invalid credentials provided",
-            error : result.error.issues[0]
+            error : `err: ${result.error.issues[0]?.message}, path: ${result.error.issues[0]?.path.toString()}`
         })
     }
 
@@ -43,7 +43,6 @@ router.post("/signup", async(req: Request<{}, {}, zod.infer<typeof signupSchema>
         return res.json({
             success : true,
             msg : "user signed up successfully",
-            newUser
         })
 
     } catch (error) {
@@ -65,7 +64,7 @@ router.post("/signin", async(req: Request<{}, {}, zod.infer<typeof signinSchema>
         return res.status(400).json({
             success : false,
             msg : "invalid credentials provided",
-            error : result.error.issues[0]
+            error : `err: ${result.error.issues[0]?.message}, path: ${result.error.issues[0]?.path.toString()}`
         })
     }
 
