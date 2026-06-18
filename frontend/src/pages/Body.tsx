@@ -3,6 +3,8 @@ import Input from "../components/ui/Input";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import UserCard from "../components/UserCard";
+import getPageNumber from "../utils/getPageNumber";
+import Button from "../components/ui/Button";
 
 
 
@@ -41,6 +43,7 @@ export default function Body() {
     const [createBalanceBtn, setCreateBalanceBtn] = useState(false);
     const [allUsers, setallUsers] = useState<IData | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
+    const [pageCount, setPageCount] = useState(1);
 
 
     async function fetchUserBalance() {
@@ -91,7 +94,7 @@ export default function Body() {
     async function getAllUsers() {
         try {
 
-            const response = await fetch("http://localhost:3000/user/bulk", {
+            const response = await fetch(`http://localhost:3000/user/bulk?page=${pageCount}&limit=${5}`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -134,9 +137,12 @@ export default function Body() {
 
     useEffect(() => {
         fetchUserBalance();
-        getAllUsers();
     }, []);
 
+
+    useEffect(() => {
+        getAllUsers();
+    }, [pageCount]);
 
 
 
@@ -150,7 +156,7 @@ export default function Body() {
             <section className="flex items-center justify-center mt-8">
                 <Input type="text" placeholder="search user with name" className="md:w-xl mb-3 w-md" />
             </section>
-            <section className="text-center bg-zinc-100 p-5 rounded-md mt-10 max-w-3xl mx-auto">
+            <section className="text-center bg-zinc-100 p-5 rounded-md mt-8 max-w-3xl mx-auto mb-5">
                 {
                     loadingUser ? "Fetching All Users..." : (
                         allUsers === null ? "failed to get All Users" : (
@@ -163,8 +169,32 @@ export default function Body() {
                         )
                     )
                 }
-            </section>
-        </div>
+
+                {
+                    allUsers !== null && allUsers?.allUsers.length !== 0 && <div className="mt-5 text-center space-x-5">
+                        {
+                            <Button variant="ghost" disabled={pageCount === 1 || loadingUser} onClick={() => {
+                                setPageCount(current => current - 1)
+                            }}>Prev</Button>
+                        }
+
+                        {
+                            getPageNumber(allUsers.totalPage, allUsers.page).map((num, index) => (
+                                num === allUsers.page ? <Button size="md" disabled={true}>{num}</Button> :
+                                    < Button onClick={() => setPageCount(num)} disabled={loadingUser} variant="ghost" key={num} > {num}</Button>
+                            ))
+                        }
+
+                        {
+                            <Button variant="ghost" disabled={loadingUser || pageCount === allUsers.totalPage} onClick={() => {
+                                setPageCount(current => current + 1);
+                            }}>Next</Button>
+                        }
+
+                    </div>
+                }
+            </section >
+        </div >
     )
 
 }
