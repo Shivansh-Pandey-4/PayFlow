@@ -1,6 +1,7 @@
 import clsx from "clsx";
+import { motion, type HTMLMotionProps } from "motion/react";
 
-interface IProps extends React.ComponentProps<"button"> {
+interface IProps extends HTMLMotionProps<"button"> {
     className?: string;
     size?: "sm" | "md" | "lg";
     variant?: "primary" | "secondary" | "tertiary" | "danger" | "ghost";
@@ -26,8 +27,8 @@ export default function Button({ children, className, disabled, size = "sm", var
     }
 
     return (
-        <button disabled={disabled} {...props} className={clsx(className, baseStyle, sizes[size], variants[variant], disabled ? "opacity-50 pointer-events-none" : "cursor-pointer")}>
+        <motion.button whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.05 }} disabled={disabled} {...props} className={clsx(className, baseStyle, sizes[size], variants[variant], disabled ? "opacity-50 pointer-events-none" : "cursor-pointer")}>
             {children}
-        </button>
+        </motion.button>
     )
 }

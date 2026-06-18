@@ -1,5 +1,6 @@
-import type { IUser } from "../pages/Body"
+import type { IUser } from "../types";
 import Button from "./ui/Button";
+
 
 interface IProps {
     data: IUser
@@ -20,7 +21,7 @@ export default function UserCard(props: IProps) {
                 <p className=" text-sm text-gray-600">{email}</p>
             </section>
             <section className="col-span-1 ">
-                <Button variant="ghost">Send Money</Button>
+                <Button size="md" variant="ghost">Send Money</Button>
             </section>
         </div>
     )

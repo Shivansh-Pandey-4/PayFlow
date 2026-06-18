@@ -1,39 +1,14 @@
 import { toast } from "sonner";
-import Input from "../components/ui/Input";
+import { motion } from "motion/react"
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import UserCard from "../components/UserCard";
 import getPageNumber from "../utils/getPageNumber";
 import Button from "../components/ui/Button";
+import type { IBalance, IData } from "../types";
+import Input from "../components/ui/Input";
 
 
-
-interface IBalance {
-    success: boolean;
-    msg: string;
-    account?: {
-        balance: number;
-        userId: string;
-    }
-    error?: string;
-}
-
-interface IData {
-    success: boolean;
-    msg: string;
-    page?: number;
-    totalPage?: number;
-    limit?: number;
-    error?: string;
-    allUsers: IUser[]
-}
-
-export interface IUser {
-    _id: string;
-    firstName: string;
-    email: string;
-    lastName?: string | null;
-}
 
 export default function Body() {
 
@@ -148,14 +123,17 @@ export default function Body() {
 
     return (
         <div className="px-4">
+
             <section className="mt-8 flex justify-between items-center px-4">
                 <h1 className="">Welcome <span className="font-medium bg-zinc-100 p-1 rounded-md capitalize">{`${user?.firstName} ${user?.lastName}`}</span></h1>
 
                 <h2 className="mt-1">Your Balance : <span className="text-lg font-semibold">Rs- {loadingBalance ? "fetching userBalance..." : (!userBalance ? "failed to get user Balance" : userBalance.account?.balance)} </span></h2>
             </section>
+
             <section className="flex items-center justify-center mt-8">
-                <Input type="text" placeholder="search user with name" className="md:w-xl mb-3 w-md" />
+                <Input whileFocus={{ scale: 1.2 }} type="text" placeholder="search user with name" className="md:w-xl mb-3 w-md" />
             </section>
+
             <section className="text-center bg-zinc-100 p-5 rounded-md mt-8 max-w-3xl mx-auto mb-5">
                 {
                     loadingUser ? "Fetching All Users..." : (
@@ -194,6 +172,7 @@ export default function Body() {
                     </div>
                 }
             </section >
+
         </div >
     )
 
