@@ -2,6 +2,9 @@ import { toast } from "sonner";
 import Input from "../components/ui/Input";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
+import UserCard from "../components/UserCard";
+
+
 
 interface IBalance {
     success: boolean;
@@ -13,12 +16,31 @@ interface IBalance {
     error?: string;
 }
 
+interface IData {
+    success: boolean;
+    msg: string;
+    page?: number;
+    totalPage?: number;
+    limit?: number;
+    error?: string;
+    allUsers: IUser[]
+}
+
+export interface IUser {
+    _id: string;
+    firstName: string;
+    email: string;
+    lastName?: string | null;
+}
+
 export default function Body() {
 
     const { user } = useAuth();
     const [loadingBalance, setLoadingBalance] = useState(true);
     const [userBalance, setUserBalance] = useState<IBalance | null>(null);
     const [createBalanceBtn, setCreateBalanceBtn] = useState(false);
+    const [allUsers, setallUsers] = useState<IData | null>(null);
+    const [loadingUser, setLoadingUser] = useState(true);
 
 
     async function fetchUserBalance() {
@@ -66,9 +88,53 @@ export default function Body() {
         }
     }
 
+    async function getAllUsers() {
+        try {
+
+            const response = await fetch("http://localhost:3000/user/bulk", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            let data: IData | null;
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = null;
+            }
+
+            if (!response.ok) {
+                setallUsers(null);
+                if (data?.success === false) {
+                    toast.error(data.msg);
+                }
+                return;
+            }
+            console.log(data);
+
+            if (data?.success) {
+                setallUsers(data);
+                return;
+            }
+
+        } catch (error) {
+            setallUsers(null);
+
+            if (error instanceof TypeError) {
+                toast.error(error.message);
+                return;
+            }
+
+            return toast.error(error instanceof Error ? error.message : "something went wrong");
+        } finally {
+            setLoadingUser(false);
+        }
+    }
+
 
     useEffect(() => {
         fetchUserBalance();
+        getAllUsers();
     }, []);
 
 
@@ -77,15 +143,26 @@ export default function Body() {
     return (
         <div className="px-4">
             <section className="mt-8 flex justify-between items-center px-4">
-                <h1 className="">Welcome <span className="font-medium bg-zinc-100 p-1 rounded-md">{`${user?.firstName.toLocaleUpperCase()} ${user?.lastName?.toUpperCase()}`}</span></h1>
+                <h1 className="">Welcome <span className="font-medium bg-zinc-100 p-1 rounded-md capitalize">{`${user?.firstName} ${user?.lastName}`}</span></h1>
 
                 <h2 className="mt-1">Your Balance : <span className="text-lg font-semibold">Rs- {loadingBalance ? "fetching userBalance..." : (!userBalance ? "failed to get user Balance" : userBalance.account?.balance)} </span></h2>
             </section>
             <section className="flex items-center justify-center mt-8">
                 <Input type="text" placeholder="search user with name" className="md:w-xl mb-3 w-md" />
             </section>
-            <section>
-                allUsers list
+            <section className="text-center bg-zinc-100 p-5 rounded-md mt-10 max-w-3xl mx-auto">
+                {
+                    loadingUser ? "Fetching All Users..." : (
+                        allUsers === null ? "failed to get All Users" : (
+                            allUsers.allUsers.length === 0 ? "Users list is empty" : (
+                                allUsers.allUsers.map(user => <div className="mb-5" key={user._id}>
+                                    <UserCard data={user} />
+                                </div>
+                                )
+                            )
+                        )
+                    )
+                }
             </section>
         </div>
     )

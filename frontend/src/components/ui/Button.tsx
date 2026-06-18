@@ -3,7 +3,7 @@ import clsx from "clsx";
 interface IProps extends React.ComponentProps<"button"> {
     className?: string;
     size?: "sm" | "md" | "lg";
-    variant?: "primary" | "secondary" | "tertiary" | "danger";
+    variant?: "primary" | "secondary" | "tertiary" | "danger" | "ghost";
     children: React.ReactNode;
 }
 
@@ -21,7 +21,8 @@ export default function Button({ children, className, disabled, size = "sm", var
         primary: "bg-gray-300 hover:bg-gray-400",
         secondary: "bg-zinc-300 hover:bg-blue-500 hover:text-white",
         tertiary: "bg-green-400 hover:bg-green-500 hover:text-white",
-        danger: "bg-red-400 hover:bg-red-600"
+        danger: "bg-red-400 hover:bg-red-600",
+        ghost: "bg-gray-200 hover:bg-black hover:text-white"
     }
 
     return (
