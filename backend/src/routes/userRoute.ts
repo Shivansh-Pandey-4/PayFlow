@@ -1,8 +1,9 @@
 import { Router, type Request, type Response } from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import zod from "zod";
-import { updateProfileSchema } from "../validation/userSchema.js";
+import { toUserIdSchema, updateProfileSchema } from "../validation/userSchema.js";
 import UserModel from "../model/UserModel.js";
+import mongoose from "mongoose";
 
 
 const router = Router();
@@ -149,6 +150,61 @@ router.get("/me", authMiddleware, async(req: Request, res: Response)=>{
 })
 
 
+router.get("/:userId", authMiddleware, async(req: Request<zod.infer<typeof toUserIdSchema>>, res: Response)=>{
+
+    
+    const result = toUserIdSchema.safeParse(req.params);
+
+    if(!result.success){
+        return res.status(400).json({
+            success : false,
+            msg : "invalid userId provided",
+            user : null
+        })
+    }
+
+    if(!mongoose.isValidObjectId(result.data.toUserId)){
+        return res.status(400).json({
+            success : false,
+            msg : "invalid userId provided",
+            user : null
+        })
+    }
+
+      if(result.data.toUserId === req.userInfo?.id){
+        return res.status(400).json({
+            success : false,
+            msg : "cannot send money to yourself",
+            user : null
+        })
+    }
+
+
+    try {
+        const userExist = await UserModel.findById(result.data.toUserId).select("-password -createdAt");
+
+        if(!userExist){
+            return res.status(400).json({
+                success : false,
+                msg : "user not found",
+                user : null
+            })
+        }
+
+        return res.json({
+            success : true,
+            msg : "user found successfully",
+            user : userExist
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success : false,
+            msg : "failed to find user",
+            error : error instanceof Error ? error.message : "unknown error occurred"
+        })
+    }
+
+})
 
 
 export default router;
