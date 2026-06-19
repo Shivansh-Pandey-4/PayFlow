@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { IUser } from "../types";
 import Button from "./ui/Button";
 
@@ -9,7 +10,8 @@ interface IProps {
 
 export default function UserCard(props: IProps) {
 
-    const { email, firstName, lastName } = props.data;
+    const { email, firstName, lastName, _id } = props.data;
+    const navigate = useNavigate();
 
     return (
         <div className="border max-w-2xl p-3 flex justify-between items-center mx-auto rounded-sm">
@@ -21,7 +23,7 @@ export default function UserCard(props: IProps) {
                 <p className=" text-sm text-gray-600">{email}</p>
             </section>
             <section className="col-span-1 ">
-                <Button size="md" variant="ghost">Send Money</Button>
+                <Button onClick={(e) => navigate(`/sendMoney/${_id}`)} size="md" variant="ghost">Send Money</Button>
             </section>
         </div>
     )
