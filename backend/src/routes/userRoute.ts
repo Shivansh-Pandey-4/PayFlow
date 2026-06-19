@@ -150,18 +150,21 @@ router.get("/me", authMiddleware, async(req: Request, res: Response)=>{
 })
 
 
-router.get("/:userId", authMiddleware, async(req: Request<zod.infer<typeof toUserIdSchema>>, res: Response)=>{
+router.get("/:toUserId", authMiddleware, async(req: Request<zod.infer<typeof toUserIdSchema>>, res: Response)=>{
 
     
     const result = toUserIdSchema.safeParse(req.params);
 
+
     if(!result.success){
+       
         return res.status(400).json({
             success : false,
-            msg : "invalid userId provided",
+            msg : "invalid userId type",
             user : null
         })
     }
+
 
     if(!mongoose.isValidObjectId(result.data.toUserId)){
         return res.status(400).json({
