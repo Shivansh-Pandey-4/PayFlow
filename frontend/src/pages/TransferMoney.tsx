@@ -78,7 +78,7 @@ export default function SendMoney() {
 
             {
                 showModel &&
-                <Model title="Are you sure?" subTitle={`Transferring ${inputAmount} rupees from your account`} yesButton={<Button variant="secondary">Yes</Button>} noButton={<Button onClick={() => setShowModel(false)} variant="danger">No</Button>} />
+                <Model title="Are you sure?" subTitle={`Transferring ${inputAmount} rupees from your account`} yesButton={<Button size="md" variant="secondary">Yes</Button>} noButton={<Button size="md" onClick={() => setShowModel(false)} variant="danger">No</Button>} />
             }
 
             <div className="mb-4">
@@ -102,7 +102,7 @@ export default function SendMoney() {
 
                                 <Input value={inputAmount} onChange={(e) => setInputAmout(parseInt(e.target.value))} type="number" placeholder="Enter amount" />
 
-                                <Button size="md" type="button" onClick={() => setShowModel(true)} variant="secondary"> Transfer Money</Button>
+                                <button className="border px-3 py-1 rounded-md bg-zinc-300 hover:bg-blue-500 hover:text-white cursor-pointer text-lg" type="button" onClick={() => setShowModel(true)} > Transfer Money</button>
                             </div>
                         </form>
 

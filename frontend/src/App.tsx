@@ -8,6 +8,7 @@ import Signup from "./pages/Signup"
 import PrivateRoute from "./components/PrivateRoute"
 import PublicRoute from "./components/PublicRoute"
 import TransferMoney from "./pages/TransferMoney"
+import CreateAccount from "./components/CreateAccount"
 
 function App() {
 
@@ -60,6 +61,12 @@ const appConfig = createBrowserRouter([
         path: "/sendMoney/:userId",
         element: <PrivateRoute>
           <TransferMoney />
+        </PrivateRoute>
+      },
+      {
+        path: "/createAccount",
+        element: <PrivateRoute>
+          <CreateAccount />
         </PrivateRoute>
       }
     ]

@@ -1,5 +1,4 @@
 import { toast } from "sonner";
-import { motion } from "motion/react"
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import UserCard from "../components/UserCard";
@@ -7,6 +6,7 @@ import getPageNumber from "../utils/getPageNumber";
 import Button from "../components/ui/Button";
 import type { IBalance, IData } from "../types";
 import Input from "../components/ui/Input";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -19,6 +19,8 @@ export default function Body() {
     const [allUsers, setallUsers] = useState<IData | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [pageCount, setPageCount] = useState(1);
+    const navigate = useNavigate();
+
 
 
     async function fetchUserBalance() {
@@ -125,9 +127,10 @@ export default function Body() {
         <div className="px-4">
 
             <section className="mt-8 flex justify-between items-center px-4">
-                <h1 className="">Welcome <span className="font-medium bg-zinc-100 p-1 rounded-md capitalize">{`${user?.firstName} ${user?.lastName}`}</span></h1>
+                <h1 className="">Welcome <span className="font-medium bg-zinc-100 p-1 rounded-md capitalize">{`${user?.firstName} ${user?.lastName ? user?.lastName : ""}`}</span></h1>
 
-                <h2 className="mt-1">Your Balance : <span className="text-lg font-semibold">Rs- {loadingBalance ? "fetching userBalance..." : (!userBalance ? "failed to get user Balance" : userBalance.account?.balance)} </span></h2>
+                <h2 className="mt-1 flex items-center"><span className="text-lg font-semibold"> {loadingBalance ? "fetching userBalance..." : (!userBalance ? (createBalanceBtn ? <Button onClick={() => navigate("/createAccount")}>Create Account</Button> : "failed to get User Balance") : `Your Balance : Rs-${userBalance.account?.balance}`)} </span></h2>
+
             </section>
 
             <section className="flex items-center justify-center mt-8">
@@ -140,7 +143,7 @@ export default function Body() {
                         allUsers === null ? "failed to get All Users" : (
                             allUsers.allUsers.length === 0 ? "Users list is empty" : (
                                 allUsers.allUsers.map(user => <div className="mb-5" key={user._id}>
-                                    <UserCard data={user} />
+                                    <UserCard accountPresent={createBalanceBtn ? false : true} data={user} />
                                 </div>
                                 )
                             )

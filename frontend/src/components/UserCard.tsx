@@ -4,13 +4,17 @@ import Button from "./ui/Button";
 
 
 interface IProps {
-    data: IUser
+    data: IUser;
+    accountPresent: boolean;
 }
 
 
 export default function UserCard(props: IProps) {
 
     const { email, firstName, lastName, _id } = props.data;
+    const { accountPresent } = props;
+    console.log(accountPresent)
+
     const navigate = useNavigate();
 
     return (
@@ -23,7 +27,7 @@ export default function UserCard(props: IProps) {
                 <p className=" text-sm text-gray-600">{email}</p>
             </section>
             <section className="col-span-1 ">
-                <Button onClick={(e) => navigate(`/sendMoney/${_id}`)} size="md" variant="ghost">Send Money</Button>
+                <Button disabled={!accountPresent} onClick={(e) => navigate(`/sendMoney/${_id}`)} size="md" variant="ghost">Send Money</Button>
             </section>
         </div>
     )
