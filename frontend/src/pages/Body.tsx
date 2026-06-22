@@ -5,8 +5,8 @@ import UserCard from "../components/UserCard";
 import getPageNumber from "../utils/getPageNumber";
 import Button from "../components/ui/Button";
 import type { IBalance, IData } from "../types";
-import Input from "../components/ui/Input";
 import { useNavigate } from "react-router-dom";
+import Input from "../components/ui/Input";
 
 
 
@@ -19,6 +19,7 @@ export default function Body() {
     const [allUsers, setallUsers] = useState<IData | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [pageCount, setPageCount] = useState(1);
+    const [inputValue, setInputValue] = useState("");
     const navigate = useNavigate();
 
 
@@ -71,7 +72,7 @@ export default function Body() {
     async function getAllUsers() {
         try {
 
-            const response = await fetch(`http://localhost:3000/user/bulk?page=${pageCount}&limit=${5}`, {
+            const response = await fetch(`http://localhost:3000/user/bulk?page=${pageCount}&limit=${5}&filter=${inputValue.trim()}`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -121,7 +122,7 @@ export default function Body() {
 
     useEffect(() => {
         getAllUsers();
-    }, [pageCount]);
+    }, [pageCount, inputValue]);
 
 
 
@@ -136,7 +137,7 @@ export default function Body() {
             </section>
 
             <section className="flex items-center justify-center mt-8">
-                <Input whileFocus={{ scale: 1.2 }} type="text" placeholder="search user with name" className="md:w-xl mb-3 w-md" />
+                <Input whileFocus={{ scale: 1.2 }} type="text" placeholder="search user with name" className="md:w-xl mb-3 w-md" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
             </section>
 
             <section className="text-center bg-zinc-100 p-5 rounded-md mt-8 max-w-3xl mx-auto mb-5">

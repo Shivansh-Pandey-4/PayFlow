@@ -41,7 +41,7 @@ router.get("/bulk", authMiddleware, async(req: Request<{}, {}, {}, {page ?: stri
                 success : true,
                 msg : "users list is empty",
                 page : parsedPage,
-                totalPage : Math.ceil(totalDocument/parsedLimit),
+                totalPage : Math.floor(totalDocument/parsedLimit),
                 limit : parsedLimit,
                 allUsers
             })
