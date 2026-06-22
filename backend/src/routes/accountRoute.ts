@@ -159,7 +159,7 @@ router.patch("/transfer", authMiddleware, async(req: Request<{}, {}, zod.infer<t
         }
 
         if(senderAccountExist.amount < amount){
-             throw new Error("insufficient balance");
+             throw new Error("You have insufficient balance");
         }
 
         const receiverAccountExist = await AccountModel.findOne({userId : toUserId}).session(session);
@@ -168,9 +168,9 @@ router.patch("/transfer", authMiddleware, async(req: Request<{}, {}, zod.infer<t
             throw new Error("receiver account not found");
         }
 
-        const updateSenderAccount = await AccountModel.updateOne({userId : senderAccountExist._id}, {$inc : { amount : -amount}}, {session});
+        const updateSenderAccount = await AccountModel.updateOne({userId : senderAccountExist.userId}, {$inc : { amount : -amount}}, {session});
 
-        const updateReceiverAccount = await AccountModel.updateOne({userId : receiverAccountExist._id}, {$inc : {amount : amount}}, {session: session});
+        const updateReceiverAccount = await AccountModel.updateOne({userId : receiverAccountExist.userId}, {$inc : {amount : amount}}, {session: session});
 
         await session.commitTransaction();
 

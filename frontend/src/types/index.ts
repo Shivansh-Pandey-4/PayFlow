@@ -2,8 +2,7 @@ export interface IBalance {
     success: boolean;
     msg: string;
     account?: {
-        balance ?: number;
-        amount ?: number;
+        amount : number;
         userId: string;
     }
     error?: string;
@@ -25,4 +24,10 @@ export interface IUser {
     firstName: string;
     email: string;
     lastName?: string | null;
+}
+
+export interface IResponse{
+    success : boolean;
+    msg : string;
+    error ?: string;
 }

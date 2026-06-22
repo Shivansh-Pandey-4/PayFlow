@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Model from "../components/ui/Modal";
 import { useModel } from "../hooks/useModel";
-import type { IUser } from "../types";
+import type { IResponse, IUser } from "../types";
 
 
 interface IData {
@@ -19,6 +19,7 @@ export default function SendMoney() {
 
     const navigate = useNavigate();
     const params = useParams();
+    const [isTransferring, setIsTransferring] = useState(false);
     const [user, setUser] = useState<IUser | null>(null);
     const [inputAmount, setInputAmout] = useState<number>(0);
     const { showModel, setShowModel } = useModel();
@@ -49,7 +50,6 @@ export default function SendMoney() {
             }
 
             if (data?.success) {
-                console.log(data);
                 if (data.user)
                     setUser(data?.user);
             }
@@ -57,6 +57,66 @@ export default function SendMoney() {
         } catch (error) {
             toast.error("failed to get user");
         }
+    }
+
+    async function transferMoney() {
+        try {
+            setIsTransferring(true);
+            const response = await fetch("http://localhost:3000/account/transfer", {
+                method: "PATCH",
+                headers: {
+                    "content-type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ amount: inputAmount, toUserId: params.userId })
+            });
+
+            let data: IResponse | null;
+
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = null;
+            }
+
+            if (!response.ok) {
+                if (data) {
+                    if (!data.success) {
+                        return toast.error(data.error || data.msg);
+                    }
+                }
+                return toast.error("failed to transfer money");
+            }
+
+            if (data?.success) {
+                toast.success(data.msg);
+                setInputAmout(0);
+                return;
+            }
+
+        } catch (error) {
+            if (error instanceof TypeError) {
+                return toast.error(error.message);
+            }
+            if (error instanceof Error) {
+                return toast.error(error.message);
+            }
+
+            return toast.error("something went wrong cannot tranfer money");
+        } finally {
+            setShowModel(false);
+            setIsTransferring(false);
+        }
+    }
+
+
+    function handleTransferMoneyBtn() {
+        if (!inputAmount || inputAmount <= 1) {
+            return toast.error("Amount should be greater than Rs - 1");
+        }
+
+        setShowModel(true);
+
     }
 
 
@@ -78,7 +138,12 @@ export default function SendMoney() {
 
             {
                 showModel &&
-                <Model title="Are you sure?" subTitle={`Transferring ${inputAmount} rupees from your account`} yesButton={<Button size="md" variant="secondary">Yes</Button>} noButton={<Button size="md" onClick={() => setShowModel(false)} variant="danger">No</Button>} />
+                <Model
+                    title="Are you sure?"
+                    subTitle={`Transferring ${inputAmount} rupees from your account`}
+                    yesButton={<Button disabled={isTransferring} onClick={() => transferMoney()} size="md" variant="secondary">Yes</Button>}
+                    noButton={<Button size="md" disabled={isTransferring} onClick={() => setShowModel(false)} variant="danger">No</Button>}
+                />
             }
 
             <div className="mb-4">
@@ -102,7 +167,7 @@ export default function SendMoney() {
 
                                 <Input value={inputAmount} onChange={(e) => setInputAmout(parseInt(e.target.value))} type="number" placeholder="Enter amount" />
 
-                                <button className="border px-3 py-1 rounded-md bg-zinc-300 hover:bg-blue-500 hover:text-white cursor-pointer text-lg" type="button" onClick={() => setShowModel(true)} > Transfer Money</button>
+                                <button className="border px-3 py-1 rounded-md bg-zinc-300 hover:bg-blue-500 hover:text-white cursor-pointer text-lg" type="button" onClick={handleTransferMoneyBtn} > Transfer Money</button>
                             </div>
                         </form>
 
