@@ -4,6 +4,7 @@ import zod from "zod";
 import { toUserIdSchema, updateProfileSchema } from "../validation/userSchema.js";
 import UserModel from "../model/UserModel.js";
 import mongoose from "mongoose";
+import AccountModel from "../model/AccountModel.js";
 
 
 const router = Router();
@@ -194,11 +195,24 @@ router.get("/:toUserId", authMiddleware, async(req: Request<zod.infer<typeof toU
             })
         }
 
+        const accountExist = await AccountModel.findOne({userId: userExist._id});
+
+        if(!accountExist){
+            return res.json({
+                success : true,
+                msg : "user found successfully but account does not exist",
+                user : userExist,
+                account : null
+            })
+        }
+
         return res.json({
             success : true,
             msg : "user found successfully",
-            user : userExist
+            user : userExist,
+            account : accountExist
         })
+
     } catch (error) {
         return res.status(500).json({
             success : false,

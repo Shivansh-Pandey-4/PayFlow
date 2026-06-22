@@ -12,15 +12,28 @@ interface IData {
     success: boolean;
     msg: string;
     user: IUser | null;
+    account: {
+        _id: string;
+        userId: string;
+        amount: number;
+    } | null;
+    error?: string;
 }
 
+interface IUserWithAccount extends IUser {
+    account: {
+        _id: string;
+        userId: string;
+        amount: number;
+    } | null
+}
 
 export default function SendMoney() {
 
     const navigate = useNavigate();
     const params = useParams();
     const [isTransferring, setIsTransferring] = useState(false);
-    const [user, setUser] = useState<IUser | null>(null);
+    const [user, setUser] = useState<IUserWithAccount | null>(null);
     const [inputAmount, setInputAmout] = useState<number>(0);
     const { showModel, setShowModel } = useModel();
 
@@ -44,14 +57,18 @@ export default function SendMoney() {
                 if (!data)
                     return toast.error("failed to get user");
                 else {
-                    toast.error(data.msg);
+                    toast.error(data.error || data.msg);
                     return
                 }
             }
 
             if (data?.success) {
-                if (data.user)
-                    setUser(data?.user);
+                if (data.user) {
+                    setUser({
+                        ...data.user,
+                        account: data.account ? data.account : null
+                    });
+                }
             }
 
         } catch (error) {
@@ -162,14 +179,23 @@ export default function SendMoney() {
 
                         <p className="mt-1 text-sm text-gray-600">Amount <span className="font-semibold italic">(in Rs)</span></p>
 
-                        <form className="mt-5" >
-                            <div className="flex flex-col gap-3">
+                        {
+                            user.account ? (<form className="mt-5" >
+                                <div className="flex flex-col gap-3">
 
-                                <Input value={inputAmount} onChange={(e) => setInputAmout(parseInt(e.target.value))} type="number" placeholder="Enter amount" />
+                                    <Input value={inputAmount} onChange={(e) => setInputAmout(parseInt(e.target.value))} type="number" placeholder="Enter amount" />
 
-                                <button className="border px-3 py-1 rounded-md bg-zinc-300 hover:bg-blue-500 hover:text-white cursor-pointer text-lg" type="button" onClick={handleTransferMoneyBtn} > Transfer Money</button>
+                                    <button className="border px-3 py-1 rounded-md bg-zinc-300 hover:bg-blue-500 hover:text-white cursor-pointer text-lg" type="button" onClick={handleTransferMoneyBtn} > Transfer Money</button>
+                                </div>
+                            </form>) : <div>
+                                <h1 className="mt-4 italic text-xl text-red-600"> Your friend does not have an account.</h1>
+                                <p className="mt-4">
+                                    Tell your friend <span className="font-medium capitalize bg-red-300 p-1 rounded-md">{user.firstName}</span> to create an account to able receive an amount.
+                                </p>
                             </div>
-                        </form>
+                        }
+
+
 
                     </div>
             }
