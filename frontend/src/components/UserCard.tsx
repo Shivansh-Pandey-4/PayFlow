@@ -13,7 +13,6 @@ export default function UserCard(props: IProps) {
 
     const { email, firstName, lastName, _id } = props.data;
     const { accountPresent } = props;
-    console.log(accountPresent)
 
     const navigate = useNavigate();
 

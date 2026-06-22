@@ -2,11 +2,13 @@ export interface IBalance {
     success: boolean;
     msg: string;
     account?: {
-        balance: number;
+        balance ?: number;
+        amount ?: number;
         userId: string;
     }
     error?: string;
 }
+
 
 export interface IData {
     success: boolean;

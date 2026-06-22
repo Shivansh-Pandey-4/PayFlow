@@ -113,7 +113,9 @@ export default function Body() {
 
 
     useEffect(() => {
-        fetchUserBalance();
+        if (user) {
+            fetchUserBalance();
+        }
     }, []);
 
 
@@ -129,7 +131,7 @@ export default function Body() {
             <section className="mt-8 flex justify-between items-center px-4">
                 <h1 className="">Welcome <span className="font-medium bg-zinc-100 p-1 rounded-md capitalize">{`${user?.firstName} ${user?.lastName ? user?.lastName : ""}`}</span></h1>
 
-                <h2 className="mt-1 flex items-center"><span className="text-lg font-semibold"> {loadingBalance ? "fetching userBalance..." : (!userBalance ? (createBalanceBtn ? <Button onClick={() => navigate("/createAccount")}>Create Account</Button> : "failed to get User Balance") : `Your Balance : Rs-${userBalance.account?.balance}`)} </span></h2>
+                <h2 className="mt-1 flex items-center"><span className="text-lg font-semibold"> {loadingBalance ? "fetching userBalance..." : (!userBalance ? (createBalanceBtn ? <Button onClick={() => navigate("/createAccount")}>Create Account</Button> : "failed to get User Balance") : `Your Balance : Rs-${userBalance.account?.balance || userBalance.account?.amount}`)} </span></h2>
 
             </section>
 
